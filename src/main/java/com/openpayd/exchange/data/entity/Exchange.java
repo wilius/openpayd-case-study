@@ -13,16 +13,16 @@ import java.util.Currency;
 
 @Entity
 @Table(name = "conversion")
-public class Conversion {
+public class Exchange {
     private long id;
 
     private ZonedDateTime conversionDate;
 
     private Currency sourceCurrency;
-    private BigDecimal sourceAmount;
-
     private Currency targetCurrency;
-    private BigDecimal targetAmount;
+
+    private BigDecimal rate;
+    private BigDecimal calculated;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,16 +56,6 @@ public class Conversion {
     }
 
     @Basic
-    @Column(name = "source_amount")
-    public BigDecimal getSourceAmount() {
-        return sourceAmount;
-    }
-
-    public void setSourceAmount(BigDecimal sourceAmount) {
-        this.sourceAmount = sourceAmount;
-    }
-
-    @Basic
     @Column(name = "target_currency")
     public Currency getTargetCurrency() {
         return targetCurrency;
@@ -76,12 +66,22 @@ public class Conversion {
     }
 
     @Basic
-    @Column(name = "target_amount")
-    public BigDecimal getTargetAmount() {
-        return targetAmount;
+    @Column(name = "rate")
+    public BigDecimal getRate() {
+        return rate;
     }
 
-    public void setTargetAmount(BigDecimal targetAmount) {
-        this.targetAmount = targetAmount;
+    public void setRate(BigDecimal rate) {
+        this.rate = rate;
+    }
+
+    @Basic
+    @Column(name = "calculated")
+    public BigDecimal getCalculated() {
+        return calculated;
+    }
+
+    public void setCalculated(BigDecimal calculated) {
+        this.calculated = calculated;
     }
 }

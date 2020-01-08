@@ -3,28 +3,49 @@ package com.openpayd.exchange.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.openpayd.exchange.data.entity.Exchange;
+import com.openpayd.exchange.data.service.ExchangeService;
 import com.openpayd.exchange.exception.ExchangeException;
 import com.openpayd.exchange.gateway.RateApiGateway;
+import com.openpayd.exchange.util.MathUtil;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class ExchangeService {
+public class ExchangeManager {
 
     private final LoadingCache<Pair<Currency, Currency>, BigDecimal> rateCache;
+    private final ExchangeService conversionService;
 
-    public ExchangeService(RateApiGateway gateway) {
+    public ExchangeManager(RateApiGateway gateway,
+                           ExchangeService conversionService) {
         this.rateCache = createRateCache(gateway);
+        this.conversionService = conversionService;
     }
 
     public BigDecimal getRate(Currency source,
                               Currency target) {
+        ConcurrentMap<Pair<Currency, Currency>, BigDecimal> map = rateCache.asMap();
+
         Pair<Currency, Currency> pair = Pair.of(source, target);
+        Pair<Currency, Currency> reverse = Pair.of(target, source);
+
+        BigDecimal rate = map.get(pair);
+        if (rate != null) {
+            return rate;
+        }
+
+        rate = map.get(reverse);
+        if (rate != null) {
+            return MathUtil.divide(BigDecimal.ONE, rate);
+        }
+
         Throwable t = null;
         for (int i = 0; i < 10; i++) {
             try {
@@ -41,15 +62,22 @@ public class ExchangeService {
         throw new RuntimeException(t.getCause());
     }
 
+    public Exchange exchange(Currency source, Currency target, BigDecimal amount) {
+        BigDecimal rate = getRate(source, target);
+        return conversionService.create(source, target, rate, amount.multiply(rate));
+    }
+
     private LoadingCache<Pair<Currency, Currency>, BigDecimal> createRateCache(RateApiGateway gateway) {
         return CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.SECONDS)
                 .build(new CacheLoader<Pair<Currency, Currency>, BigDecimal>() {
                     @Override
                     public BigDecimal load(Pair<Currency, Currency> pair) {
-                        return gateway.getExchangeRate(pair.getFirst(), pair.getSecond());
+                        BigDecimal rate = gateway.getExchangeRate(pair.getFirst(), pair.getSecond());
+                        return MathUtil.scale(rate);
                     }
                 });
-    }
 
+
+    }
 }

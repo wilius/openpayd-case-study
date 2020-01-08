@@ -1,9 +1,9 @@
 package com.openpayd.exchange.data.repository;
 
-import com.openpayd.exchange.data.entity.Conversion;
+import com.openpayd.exchange.data.entity.Exchange;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ConversionRepository extends CrudRepository<Conversion, Long> {
+public interface ExchangeRepository extends CrudRepository<Exchange, Long> {
 }

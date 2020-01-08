@@ -36,7 +36,6 @@ public class ErrorAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public BadRequestResponse handleConverterErrors(MethodArgumentNotValidException e) {
         String message = getMessage(e);
-
         return new BadRequestResponse(ErrorCode.INVALID_REQUEST, message);
     }
 
