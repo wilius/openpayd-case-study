@@ -7,11 +7,14 @@ import com.openpayd.exchange.data.entity.Exchange;
 import com.openpayd.exchange.data.service.ExchangeService;
 import com.openpayd.exchange.exception.ExchangeException;
 import com.openpayd.exchange.gateway.RateApiGateway;
+import com.openpayd.exchange.model.ExchangeListPageToken;
 import com.openpayd.exchange.util.MathUtil;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Currency;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -79,5 +82,22 @@ public class ExchangeManager {
                 });
 
 
+    }
+
+    public Exchange get(Long id, LocalDate date) {
+        Exchange exchange = conversionService.findById(id);
+        if (exchange != null && !exchange.getExchangeDate().toLocalDate().equals(date)) {
+            return null;
+        }
+
+        return exchange;
+    }
+
+    public Page<Exchange> list(LocalDate date, int size) {
+        return conversionService.list(date, size);
+    }
+
+    public Page<Exchange> list(ExchangeListPageToken page) {
+        return conversionService.list(page.getDate(), page.getPageNumber(), page.getPageSize(), page.getMaxId());
     }
 }

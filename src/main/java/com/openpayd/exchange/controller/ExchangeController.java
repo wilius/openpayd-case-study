@@ -1,16 +1,29 @@
 package com.openpayd.exchange.controller;
 
 import com.openpayd.exchange.data.entity.Exchange;
+import com.openpayd.exchange.dto.ExchangeDto;
 import com.openpayd.exchange.dto.request.ExchangeRequest;
 import com.openpayd.exchange.dto.request.GetRateRequest;
+import com.openpayd.exchange.dto.request.ListTransactionsRequest;
 import com.openpayd.exchange.dto.response.ExchangeResponse;
 import com.openpayd.exchange.dto.response.GetRateResponse;
+import com.openpayd.exchange.dto.response.PagedResponse;
+import com.openpayd.exchange.mapper.ExchangeMapper;
+import com.openpayd.exchange.model.ExchangeListPageToken;
 import com.openpayd.exchange.service.ExchangeManager;
+import com.openpayd.exchange.util.JWTUtil;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 public class ExchangeController {
@@ -35,4 +48,61 @@ public class ExchangeController {
                 result.getCalculated()
         );
     }
+
+    @RequestMapping(path = "/list/{pageToken}", method = RequestMethod.GET)
+    public PagedResponse<ExchangeDto> list(@PathVariable("pageToken") String pageToken) {
+        ExchangeListPageToken page;
+        try {
+            page = JWTUtil.decrypt(pageToken, ExchangeListPageToken.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return mapPagedResponse(service.list(page), page.getDate(), page.getPageSize(), page);
+    }
+
+    @RequestMapping(path = "/list", method = RequestMethod.POST)
+    public PagedResponse<ExchangeDto> list(@RequestBody @Validated ListTransactionsRequest request,
+                                           @RequestParam(name = "size", defaultValue = "10") int pageSize) {
+        if (request.getId() != null) {
+            Exchange item = service.get(request.getId(), request.getDate());
+            List<ExchangeDto> result = ExchangeMapper.map(item);
+
+            return new PagedResponse<>(
+                    1,
+                    result.size(),
+                    0,
+                    result,
+                    null
+            );
+        }
+
+        Page<Exchange> page = service.list(request.getDate(), pageSize);
+        return mapPagedResponse(page, request.getDate(), pageSize, null);
+    }
+
+    private PagedResponse<ExchangeDto> mapPagedResponse(Page<Exchange> page,
+                                                        LocalDate date,
+                                                        int pageSize,
+                                                        ExchangeListPageToken token) {
+
+        List<ExchangeDto> elements = ExchangeMapper.map(page.getContent());
+
+        ExchangeListPageToken pageToken = null;
+
+        int pageNumber = page.getNumber() + 1;
+        if (!elements.isEmpty() && page.hasNext()) {
+            long maxId = token != null ? token.getMaxId() : elements.get(0).getId();
+            pageToken = new ExchangeListPageToken(maxId, date, pageNumber, pageSize);
+        }
+
+        return new PagedResponse<>(
+                page.getTotalPages(),
+                page.getTotalElements(),
+                pageNumber,
+                elements,
+                pageToken
+        );
+    }
+
 }

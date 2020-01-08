@@ -6,17 +6,20 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Currency;
 
 @Entity
-@Table(name = "conversion")
+@Table(name = "exchange", indexes = {
+        @Index(columnList = "exchange_date desc", name = "idx_exchange___exchange_date_desc")
+})
 public class Exchange {
     private long id;
 
-    private ZonedDateTime conversionDate;
+    private ZonedDateTime exchangeDate;
 
     private Currency sourceCurrency;
     private Currency targetCurrency;
@@ -36,13 +39,13 @@ public class Exchange {
     }
 
     @Basic
-    @Column(name = "conversion_date")
-    public ZonedDateTime getConversionDate() {
-        return conversionDate;
+    @Column(name = "exchange_date")
+    public ZonedDateTime getExchangeDate() {
+        return exchangeDate;
     }
 
-    public void setConversionDate(ZonedDateTime createTimestamp) {
-        this.conversionDate = createTimestamp;
+    public void setExchangeDate(ZonedDateTime exchangeDate) {
+        this.exchangeDate = exchangeDate;
     }
 
     @Basic
