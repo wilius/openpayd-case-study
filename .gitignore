@@ -21,3 +21,30 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+target
+.project
+.settings
+.classpath
+*.ipr
+*.iws
+*.iml
+.idea
+.factorypath
+logback.groovy
+.DS_Store
+*~
+**/logback.xml
+services.json
+dependency-reduced-pom.xml
+*.properties
+!tools/etl/*
+*.pyc
+hsql*
+rebel.xml
+hazelcast.xml
+hazelcast-client.xml
+hazelcast.xml-bkp
+*.fuse_hidden*
+.metadata
+**/hibernate.cfg.xml
