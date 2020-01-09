@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import com.openpayd.exchange.data.entity.Exchange;
 import com.openpayd.exchange.data.service.ExchangeService;
 import com.openpayd.exchange.exception.ExchangeException;
+import com.openpayd.exchange.exception.RemoteException;
 import com.openpayd.exchange.gateway.RateApiGateway;
 import com.openpayd.exchange.model.ExchangeListPageToken;
 import com.openpayd.exchange.util.MathUtil;
@@ -17,7 +18,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -58,11 +58,11 @@ public class ExchangeManager {
             }
         }
 
-        if (t.getCause() instanceof ExecutionException) {
+        if (t.getCause() instanceof ExchangeException) {
             throw (ExchangeException) t.getCause();
         }
 
-        throw new RuntimeException(t.getCause());
+        throw new RuntimeException(t);
     }
 
     public Exchange exchange(Currency source, Currency target, BigDecimal amount) {

@@ -1,5 +1,6 @@
 package com.openpayd.exchange.util;
 
+import com.openpayd.exchange.exception.InvalidRequestException;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
@@ -18,5 +19,11 @@ public class MathUtil {
         Assert.notNull(dividend, "dividend cannot be null");
         Assert.isTrue(dividend.signum() != 0, "dividend cannot be zero");
         return divider.divide(dividend, Constants.Math.SCALE, Constants.Math.ROUNDING_MODE);
+    }
+
+    public static void validatePositive(int number, String message) {
+        if (number < 1) {
+            throw new InvalidRequestException(message);
+        }
     }
 }

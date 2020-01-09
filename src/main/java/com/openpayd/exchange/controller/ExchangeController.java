@@ -12,6 +12,7 @@ import com.openpayd.exchange.mapper.ExchangeMapper;
 import com.openpayd.exchange.model.ExchangeListPageToken;
 import com.openpayd.exchange.service.ExchangeManager;
 import com.openpayd.exchange.util.JWTUtil;
+import com.openpayd.exchange.util.MathUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,20 +51,32 @@ public class ExchangeController {
     }
 
     @RequestMapping(path = "/list/{pageToken}", method = RequestMethod.GET)
-    public PagedResponse<ExchangeDto> list(@PathVariable("pageToken") String pageToken) {
-        ExchangeListPageToken page;
+    public PagedResponse<ExchangeDto> list(@PathVariable("pageToken") String pageToken,
+                                           @RequestParam(name = "page", required = false) Integer page) {
+        if (page != null) {
+            MathUtil.validatePositive(page, "page should be equals or greater than 1");
+        }
+
+        ExchangeListPageToken token;
         try {
-            page = JWTUtil.decrypt(pageToken, ExchangeListPageToken.class);
+            token = JWTUtil.decrypt(pageToken, ExchangeListPageToken.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        return mapPagedResponse(service.list(page), page.getDate(), page.getPageSize(), page);
+        if (page != null) {
+            token = new ExchangeListPageToken(token.getMaxId(), token.getDate(), page - 1, token.getPageSize());
+        }
+
+        return mapPagedResponse(service.list(token), token.getDate(), token.getPageSize(), token);
     }
 
     @RequestMapping(path = "/list", method = RequestMethod.POST)
     public PagedResponse<ExchangeDto> list(@RequestBody @Validated ListTransactionsRequest request,
                                            @RequestParam(name = "size", defaultValue = "10") int pageSize) {
+
+        MathUtil.validatePositive(pageSize, "page size should be equals or greater than 1");
+
         if (request.getId() != null) {
             Exchange item = service.get(request.getId(), request.getDate());
             List<ExchangeDto> result = ExchangeMapper.map(item);
@@ -104,5 +117,4 @@ public class ExchangeController {
                 pageToken
         );
     }
-
 }

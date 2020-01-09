@@ -1,5 +1,6 @@
 package com.openpayd.exchange.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.openpayd.exchange.gateway.jackson.serdes.PageTokenSerializer;
 import com.openpayd.exchange.model.PageToken;
@@ -10,8 +11,10 @@ public class PagedResponse<T> {
     private final int totalPages;
     private final long totalElements;
     private final int currentPage;
+
     private final List<T> items;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonSerialize(using = PageTokenSerializer.class)
     private final PageToken nextPageToken;
 

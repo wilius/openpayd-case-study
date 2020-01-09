@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.openpayd.exchange.dto.BadRequestResponse;
 import com.openpayd.exchange.dto.ErrorCode;
+import com.openpayd.exchange.exception.ExchangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,12 @@ public class ErrorAdvice {
     public BadRequestResponse handle(Exception e) {
         log.warn(e.getMessage(), e);
         return new BadRequestResponse(UNEXPECTED_ERROR, e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ExchangeException.class)
+    public BadRequestResponse handle(ExchangeException e) {
+        return new BadRequestResponse(e.getErrorCode(), e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

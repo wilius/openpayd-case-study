@@ -2,7 +2,7 @@ package com.openpayd.exchange.exception;
 
 import com.openpayd.exchange.dto.ErrorCode;
 
-public class InvalidCurrencyCodeException extends BadRequestException {
+public class InvalidCurrencyCodeException extends ExchangeException {
     private final String currencyCode;
 
     public InvalidCurrencyCodeException(String currencyCode) {
