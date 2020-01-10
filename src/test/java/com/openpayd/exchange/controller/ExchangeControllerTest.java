@@ -1,6 +1,7 @@
 package com.openpayd.exchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openpayd.exchange.dto.request.GetRateRequest;
 import com.openpayd.exchange.gateway.jackson.ObjectMapperFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -28,6 +30,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,8 +49,11 @@ public class ExchangeControllerTest {
     @BeforeEach
     public void setUp(WebApplicationContext context,
                       RestDocumentationContextProvider restDocumentation) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(documentationConfiguration(restDocumentation))
+
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(documentationConfiguration(restDocumentation)
+                        .snippets()
+                        .withEncoding("UTF-8"))
                 .build();
     }
 
@@ -61,7 +67,7 @@ public class ExchangeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(request));
 
-        RestDocumentationResultHandler document = document("{method-name}",
+        RestDocumentationResultHandler document = document("{class-name}/{method-name}",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 responseFields(
@@ -91,24 +97,10 @@ public class ExchangeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(request));
 
-        RestDocumentationResultHandler document = document("{method-name}",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                responseFields(
-                        fieldWithPath("code")
-                                .type(JsonFieldType.STRING)
-                                .description("Error code to describe the cause of "),
-                        fieldWithPath("message")
-                                .type(JsonFieldType.STRING)
-                                .description("Message to describe exception ")
-                )
-        );
-
         mockMvc.perform(builder)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code", is("INVALID_REQUEST")))
-                .andDo(document);
+                .andExpect(jsonPath("$.code", is("INVALID_REQUEST")));
     }
 
     @Test
@@ -122,7 +114,7 @@ public class ExchangeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(request));
 
-        RestDocumentationResultHandler document = document("{method-name}",
+        RestDocumentationResultHandler document = document("{class-name}/{method-name}",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 responseFields(
@@ -153,28 +145,14 @@ public class ExchangeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(request));
 
-        RestDocumentationResultHandler document = document("{method-name}",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                responseFields(
-                        fieldWithPath("code")
-                                .type(JsonFieldType.STRING)
-                                .description("Error code to describe the cause of "),
-                        fieldWithPath("message")
-                                .type(JsonFieldType.STRING)
-                                .description("Message to describe exception ")
-                )
-        );
-
         mockMvc.perform(builder)
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code", is("INVALID_CURRENCY_CODE")))
-                .andDo(document);
+                .andExpect(jsonPath("$.code", is("INVALID_CURRENCY_CODE")));
     }
 
     @Test
-    public void rate() throws Exception {
+    public void rate_success() throws Exception {
         Map<String, Object> request = new HashMap<>();
         request.put("source", "TRY");
         request.put("target", "GBP");
@@ -184,13 +162,25 @@ public class ExchangeControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsBytes(request));
 
-        RestDocumentationResultHandler document = document("{method-name}",
+        ConstrainedFields fields = new ConstrainedFields(GetRateRequest.class);
+
+        RestDocumentationResultHandler document = document("{class-name}/{method-name}",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
+                requestFields(
+                        fields.withPath("source")
+                                .type(JsonFieldType.STRING)
+                                .description("Base `ISO 4217` currency code for rate"),
+
+                        fields.withPath("target")
+                                .type(JsonFieldType.STRING)
+                                .description("Target `ISO 4217` currency code for rate")
+                ),
+
                 responseFields(
                         fieldWithPath("rate")
                                 .type(JsonFieldType.NUMBER)
-                                .description("Exchange rate between currencies")
+                                .description("Exchange rate between source and target currencies")
                 )
         );
 
