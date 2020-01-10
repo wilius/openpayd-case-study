@@ -97,16 +97,16 @@ public class ExchangeController {
     private PagedResponse<ExchangeDto> mapPagedResponse(Page<Exchange> page,
                                                         LocalDate date,
                                                         int pageSize,
-                                                        ExchangeListPageToken token) {
+                                                        ExchangeListPageToken previousToken) {
 
         List<ExchangeDto> elements = ExchangeMapper.map(page.getContent());
 
-        ExchangeListPageToken pageToken = null;
+        ExchangeListPageToken nextPageToken = null;
 
         int pageNumber = page.getNumber() + 1;
         if (!elements.isEmpty() && page.hasNext()) {
-            long maxId = token != null ? token.getMaxId() : elements.get(0).getId();
-            pageToken = new ExchangeListPageToken(maxId, date, pageNumber, pageSize);
+            long maxId = previousToken != null ? previousToken.getMaxId() : elements.get(0).getId();
+            nextPageToken = new ExchangeListPageToken(maxId, date, pageNumber, pageSize);
         }
 
         return new PagedResponse<>(
@@ -114,7 +114,7 @@ public class ExchangeController {
                 page.getTotalElements(),
                 pageNumber,
                 elements,
-                pageToken
+                nextPageToken
         );
     }
 }

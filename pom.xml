@@ -16,6 +16,8 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-restdocs.version>2.0.4.RELEASE</spring-restdocs.version>
+        <asciidoctor-maven-plugin.version>1.5.8</asciidoctor-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -54,6 +56,20 @@
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <version>${spring-restdocs.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <organization>
@@ -61,4 +77,31 @@
         <url>https://openpayd.com/</url>
     </organization>
 
+    <build>
+        <plugins>
+            <!--
+                plugin below added because of the incompatible between maven 3.6 and junit 5
+                https://springframework.guru/why-your-junit-5-tests-are-not-running-under-maven/
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.1.0</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>5.1.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>

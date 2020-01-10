@@ -7,11 +7,11 @@ import javax.validation.constraints.NotNull;
 import java.util.Currency;
 
 public class GetRateRequest {
-    @NotNull
+    @NotNull(message = "source field cannot null")
     @JsonDeserialize(using = CurrencyDeserializer.class)
     private Currency source;
 
-    @NotNull
+    @NotNull(message = "target field cannot null")
     @JsonDeserialize(using = CurrencyDeserializer.class)
     private Currency target;
 

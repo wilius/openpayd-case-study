@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:hsqldb:hsql:/localhost:6231/exchange
+    driverClassName: org.hsqldb.jdbcDriver
+    username: root
+    password: pass
+    hikari:
+      pool-name: integrator-db-pool
+  jpa:
+    hibernate:
+      ddl-auto: update

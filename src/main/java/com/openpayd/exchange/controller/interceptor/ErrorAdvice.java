@@ -49,6 +49,11 @@ public class ErrorAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public BadRequestResponse handleConverterErrors(HttpMessageNotReadableException e) {
+        ExchangeException knownException = getKnownException(e);
+        if (knownException != null) {
+            return handle(knownException);
+        }
+
         String message;
         if (e.getCause() instanceof InvalidFormatException) {
             InvalidFormatException e1 = (InvalidFormatException) e.getCause();
@@ -89,5 +94,30 @@ public class ErrorAdvice {
         }
 
         return e.getMessage();
+    }
+
+    /**
+     * used to extract a wrapped known exception from exception stack.
+     *
+     * @param e exception to walk into
+     * @return a known exception if exists
+     */
+    private ExchangeException getKnownException(Exception e) {
+        Throwable t = e;
+        int i = 0;
+        do {
+            if (t == null || t == t.getCause()) {
+                break;
+            }
+
+            t = t.getCause();
+
+            if (t instanceof ExchangeException) {
+                return (ExchangeException) t;
+            }
+
+            i++;
+        } while (i < 100);
+        return null;
     }
 }
