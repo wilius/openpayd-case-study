@@ -1,65 +1,46 @@
 package com.openpayd.exchange.gateway;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openpayd.exchange.exception.RemoteException;
 import com.openpayd.exchange.gateway.dto.ExchangeRateResponse;
 import com.openpayd.exchange.gateway.dto.ServiceErrorResponse;
 import com.openpayd.exchange.gateway.jackson.ObjectMapperFactory;
-import com.openpayd.exchange.util.IOUtil;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.BufferedHttpEntity;
+import org.springframework.web.client.RestClientResponseException;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 
 public class RateApiGateway {
-    private final HttpClient httpClient;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper = ObjectMapperFactory.instance;
 
-    public RateApiGateway() {
-        httpClient = ExchangeHttpClient.createHttpClient();
+    public RateApiGateway(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     public BigDecimal getExchangeRate(Currency source,
                                       Currency target) {
 
-        HttpResponse httpResponse;
         try {
             URIBuilder builder = new URIBuilder("https://api.ratesapi.io/api/latest")
                     .setParameter("base", source.getCurrencyCode())
                     .setParameter("symbols", target.getCurrencyCode());
-            HttpGet request = new HttpGet(builder.build());
-            httpResponse = httpClient.execute(request);
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode >= 200 && statusCode < 300) {
-                ExchangeRateResponse response = ObjectMapperFactory.instance.readValue(httpResponse.getEntity().getContent(), ExchangeRateResponse.class);
-                return response.getRates().get(target);
+
+            ExchangeRateResponse response = restTemplate.getForObject(builder.build(), ExchangeRateResponse.class);
+            return response.getRates().get(target);
+        } catch (RestClientResponseException e) {
+            ServiceErrorResponse response;
+            try {
+                response = objectMapper.readValue(e.getResponseBodyAsByteArray(), ServiceErrorResponse.class);
+            } catch (Throwable t) {
+                throw new RemoteException(e);
             }
+
+            throw new RemoteException(response.getError());
         } catch (Throwable t) {
             throw new RemoteException(t);
         }
-
-        BufferedHttpEntity entity = null;
-        ServiceErrorResponse response;
-        try {
-            entity = new BufferedHttpEntity(httpResponse.getEntity());
-            response = ObjectMapperFactory.instance.readValue(entity.getContent(), ServiceErrorResponse.class);
-        } catch (Throwable t) {
-            if (entity != null) {
-                String content;
-                try {
-                    content = IOUtil.readStreamContent(entity);
-                } catch (Throwable t2) {
-                    throw new RemoteException(t2);
-                }
-
-                throw new RemoteException(content);
-            }
-
-            throw new RemoteException(t.getMessage());
-        }
-
-        throw new RemoteException(response.getError());
     }
 }

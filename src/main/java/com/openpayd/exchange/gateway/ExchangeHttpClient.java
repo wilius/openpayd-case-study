@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
-class ExchangeHttpClient {
+public class ExchangeHttpClient {
     private static final int TIMEOUT = 15_000;
     private static final int MAX_CONNECTION_PER_ROUTE = 100;
 

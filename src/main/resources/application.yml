@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: Exchange Application 1
   datasource:
     url: jdbc:hsqldb:hsql:/localhost:6231/exchange
     driverClassName: org.hsqldb.jdbcDriver

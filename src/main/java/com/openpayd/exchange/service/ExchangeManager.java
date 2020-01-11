@@ -1,12 +1,10 @@
 package com.openpayd.exchange.service;
 
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.openpayd.exchange.data.entity.Exchange;
 import com.openpayd.exchange.data.service.ExchangeService;
 import com.openpayd.exchange.exception.ExchangeException;
-import com.openpayd.exchange.exception.RemoteException;
 import com.openpayd.exchange.gateway.RateApiGateway;
 import com.openpayd.exchange.model.ExchangeListPageToken;
 import com.openpayd.exchange.util.MathUtil;
@@ -19,6 +17,8 @@ import java.time.LocalDate;
 import java.util.Currency;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+
+import static com.openpayd.exchange.util.CacheLoaderUtil.create;
 
 @Service
 public class ExchangeManager {
@@ -73,15 +73,10 @@ public class ExchangeManager {
     private LoadingCache<Pair<Currency, Currency>, BigDecimal> createRateCache(RateApiGateway gateway) {
         return CacheBuilder.newBuilder()
                 .expireAfterWrite(10, TimeUnit.SECONDS)
-                .build(new CacheLoader<Pair<Currency, Currency>, BigDecimal>() {
-                    @Override
-                    public BigDecimal load(Pair<Currency, Currency> pair) {
-                        BigDecimal rate = gateway.getExchangeRate(pair.getFirst(), pair.getSecond());
-                        return MathUtil.scale(rate);
-                    }
-                });
-
-
+                .build(create(x -> {
+                    BigDecimal rate = gateway.getExchangeRate(x.getFirst(), x.getSecond());
+                    return MathUtil.scale(rate);
+                }));
     }
 
     public Exchange get(Long id, LocalDate date) {
