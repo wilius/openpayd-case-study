@@ -50,6 +50,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
             <version>${hsqldb.version}</version>
@@ -136,12 +142,6 @@
                         <artifactId>junit-jupiter-engine</artifactId>
                         <version>${junit-jupiter-engine.version}</version>
                     </dependency>
-
-                    <dependency>
-                        <groupId>com.openpayd</groupId>
-                        <artifactId>docker-health-checker</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
                 </dependencies>
             </plugin>
 
@@ -163,10 +163,22 @@
                 </configuration>
             </plugin>
 
+            <!--
+                to copy the health checker application to use in docker for health check
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.4</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>com.openpayd</groupId>
+                        <artifactId>docker-health-checker</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+
                 <executions>
                     <execution>
                         <phase>compile</phase>

@@ -15,6 +15,7 @@ If one or two of `source` or `target` fields missing a the you will get the exce
 operation::exchange-controller-test/rate_missing-source-parameter[snippets='request-body,http-response']
 
 ===== Invalid Currency Code
+
 if the parameter value for `source` or `target` is not a valid `ISO 4217` currency code then you will get the response below:
 
 operation::exchange-controller-test/rate_invalid-currency-in-source[snippets='request-body,http-response']

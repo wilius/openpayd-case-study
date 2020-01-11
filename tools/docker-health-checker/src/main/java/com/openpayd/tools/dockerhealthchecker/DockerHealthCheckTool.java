@@ -12,6 +12,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 public class DockerHealthCheckTool {
     public static void main(String[] args) {
         try {
@@ -37,11 +40,21 @@ public class DockerHealthCheckTool {
 
             HttpClient client = ExchangeHttpClient.createHttpClient();
 
-            HttpResponse httpResponse;
-            httpResponse = client.execute(new HttpGet(url));
+            HttpResponse httpResponse = client.execute(new HttpGet(url));
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (statusCode >= 200 && statusCode < 300) {
                 System.exit(0);
+            }
+
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                 InputStream is = httpResponse.getEntity().getContent()) {
+                byte[] bytes = new byte[1024];
+                int read;
+                while ((read = is.read(bytes)) != -1) {
+                    bos.write(bytes, 0, read);
+                }
+
+                throw new RuntimeException("Response code: " + statusCode + ", message: " + bos.toString());
             }
         } catch (Throwable t) {
             t.printStackTrace();
