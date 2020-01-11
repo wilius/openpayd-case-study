@@ -1,4 +1,4 @@
-package com.openpayd.exchange.gateway;
+package com.openpayd.commons.httpclient;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;

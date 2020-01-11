@@ -1,6 +1,6 @@
 package com.openpayd.exchange.config;
 
-import com.openpayd.exchange.gateway.ExchangeHttpClient;
+import com.openpayd.commons.httpclient.ExchangeHttpClient;
 import com.openpayd.exchange.gateway.RateApiGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +10,6 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 @Configuration
 public class MainConfig {
-    private static final int TIMEOUT = 15_000;
-    private static final int MAX_CONNECTION_PER_ROUTE = 100;
 
     @Bean
     public RateApiGateway rateApiGateway(RestTemplate restTemplate) {
