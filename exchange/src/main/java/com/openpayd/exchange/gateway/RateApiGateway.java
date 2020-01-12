@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openpayd.exchange.exception.RemoteException;
 import com.openpayd.exchange.gateway.dto.ExchangeRateResponse;
 import com.openpayd.exchange.gateway.dto.ServiceErrorResponse;
-import com.openpayd.exchange.gateway.jackson.ObjectMapperFactory;
+import com.openpayd.commons.jackson.ObjectMapperFactory;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;

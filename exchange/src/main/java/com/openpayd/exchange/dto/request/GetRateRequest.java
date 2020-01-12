@@ -1,7 +1,7 @@
 package com.openpayd.exchange.dto.request;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.openpayd.exchange.gateway.jackson.serdes.CurrencyDeserializer;
+import com.openpayd.exchange.gateway.serdes.CurrencyDeserializer;
 
 import javax.validation.constraints.NotNull;
 import java.util.Currency;

@@ -1,4 +1,4 @@
-package com.openpayd.exchange.gateway.jackson;
+package com.openpayd.commons.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;

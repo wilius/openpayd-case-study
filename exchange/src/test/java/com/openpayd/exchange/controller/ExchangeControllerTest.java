@@ -2,7 +2,7 @@ package com.openpayd.exchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openpayd.exchange.dto.request.GetRateRequest;
-import com.openpayd.exchange.gateway.jackson.ObjectMapperFactory;
+import com.openpayd.commons.jackson.ObjectMapperFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

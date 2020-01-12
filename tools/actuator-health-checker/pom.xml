@@ -8,7 +8,7 @@
         <version>0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>docker-health-checker</artifactId>
+    <artifactId>actuator-health-checker</artifactId>
 
     <dependencies>
         <dependency>
@@ -37,7 +37,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.openpayd.tools.dockerhealthchecker.DockerHealthCheckTool</mainClass>
+                            <mainClass>com.openpayd.tools.healthchecker.actuator.ActuatorHealthCheckTool</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>

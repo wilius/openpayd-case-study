@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>docker-health-checker</module>
+        <module>actuator-health-checker</module>
     </modules>
 
 </project>

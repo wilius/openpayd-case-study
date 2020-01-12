@@ -1,4 +1,4 @@
-package com.openpayd.exchange.gateway.jackson.serdes;
+package com.openpayd.exchange.gateway.serdes;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

@@ -1,7 +1,7 @@
 package com.openpayd.exchange.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.openpayd.exchange.gateway.jackson.ObjectMapperFactory;
+import com.openpayd.commons.jackson.ObjectMapperFactory;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

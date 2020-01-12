@@ -1,6 +1,9 @@
-package com.openpayd.tools.dockerhealthchecker;
+package com.openpayd.tools.healthchecker.actuator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openpayd.commons.httpclient.ExchangeHttpClient;
+import com.openpayd.commons.jackson.ObjectMapperFactory;
+import com.openpayd.tools.healthchecker.actuator.dto.Health;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -11,11 +14,14 @@ import org.apache.commons.cli.ParseException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.springframework.util.CollectionUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
-public class DockerHealthCheckTool {
+public class ActuatorHealthCheckTool {
     public static void main(String[] args) {
         try {
             Options options = new Options();
@@ -43,22 +49,40 @@ public class DockerHealthCheckTool {
             HttpResponse httpResponse = client.execute(new HttpGet(url));
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (statusCode >= 200 && statusCode < 300) {
-                System.exit(0);
-            }
-
-            try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                 InputStream is = httpResponse.getEntity().getContent()) {
-                byte[] bytes = new byte[1024];
-                int read;
-                while ((read = is.read(bytes)) != -1) {
-                    bos.write(bytes, 0, read);
+                ObjectMapper mapper = ObjectMapperFactory.instance;
+                Health response = mapper.readValue(httpResponse.getEntity().getContent(), Health.class);
+                if (Health.Status.UP.equals(response.getStatus())) {
+                    System.exit(0);
                 }
 
-                throw new RuntimeException("Response code: " + statusCode + ", message: " + bos.toString());
+                System.err.println(String.format("Actuator status is '%s'", response.getStatus()));
+                if (!CollectionUtils.isEmpty(response.getDetails())) {
+                    System.err.println("details");
+                    for (Map.Entry<String, Object> entry : response.getDetails().entrySet()) {
+                        System.err.println(String.format("    %s: '%s'", entry.getKey(), mapper.writeValueAsString(entry.getValue())));
+                    }
+                }
+
+                System.exit(1);
             }
+
+            throw new RuntimeException("Response code: " + statusCode + ", message: " + readContent(httpResponse));
         } catch (Throwable t) {
             t.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    private static String readContent(HttpResponse httpResponse) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             InputStream is = httpResponse.getEntity().getContent()) {
+            byte[] bytes = new byte[1024];
+            int read;
+            while ((read = is.read(bytes)) != -1) {
+                bos.write(bytes, 0, read);
+            }
+
+            return bos.toString();
         }
     }
 }

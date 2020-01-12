@@ -71,6 +71,12 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${jjwt.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -174,7 +180,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>com.openpayd</groupId>
-                        <artifactId>docker-health-checker</artifactId>
+                        <artifactId>actuator-health-checker</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
@@ -189,7 +195,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.openpayd</groupId>
-                                    <artifactId>docker-health-checker</artifactId>
+                                    <artifactId>actuator-health-checker</artifactId>
                                     <version>${project.version}</version>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
                                 </artifactItem>

@@ -1,0 +1,7 @@
+version: '3'
+services:
+  exchange:
+    container_name: exchange
+    image: "com.openpayd/exchange:latest"
+    ports:
+      - 8080:8080
