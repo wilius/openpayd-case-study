@@ -4,7 +4,7 @@ The main purpose of the Rate Api is to retrieve the current exchange rate betwee
 
 ==== Success
 
-operation::exchange-controller-test/rate_success[snippets='request-fields,request-body,response-fields,response-body']
+operation::exchange-controller-test/rate_success[snippets='request-fields,http-request,response-fields,http-response']
 
 ==== Errors
 

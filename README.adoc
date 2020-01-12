@@ -1,0 +1,45 @@
+= Exchange Application Guide
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+== Requirements
+
+Application developed based on `Java 8` and `Maven 3.6.3` as build & dependency management tool. To build and run the application, you need to run the following commands in the root of project:
+
+```bash
+mvn clean install
+java -jar exchange/target/exchange-rest-service-0.1.jar
+```
+
+After you run the two commands above, the application will start successfully. The API documentation is located on http://localhost:8080/docs/index.html[*Exchange Service API Documentation*] page.
+
+Application uses the `Spring Boot REST Docs` to serve its documentation by using Test-Driven Documentation philosophy.
+
+The application also integrated with the `Splunk` directly. To run the application integrated with Splunk, you should run the command below:
+
+```Bash
+sh run.sh
+```
+
+Please note that, the command above requires latest versions of the following applications to be installed on host:
+
+. Maven (3.6.3)
+. Docker
+. Docker-Compose
+
+After you verified the applications above installed on your host and run the command the script above, then you will see the application logs on the http://localhost:8085[*Splunk Web Application*]. It will requires an username and password to login. You can use the credentials below to login:
+
+|===
+|Parameter|Value
+
+|`+username+`
+|`+admin+`
+
+|`+password+`
+|`+123456789+`
+
+|===

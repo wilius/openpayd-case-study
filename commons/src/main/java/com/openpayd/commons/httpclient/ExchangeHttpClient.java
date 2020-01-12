@@ -7,17 +7,11 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContexts;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
 public class ExchangeHttpClient {
@@ -43,31 +37,6 @@ public class ExchangeHttpClient {
                 .setTcpNoDelay(true)
                 .build();
 
-        SSLContext sslcontext;
-        try {
-            sslcontext = SSLContexts.custom()
-                    .build();
-
-            sslcontext.init(null, new X509TrustManager[]{new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[]{
-                    };
-                }
-            }}, new SecureRandom());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        SSLConnectionSocketFactory factory = new SSLConnectionSocketFactory(sslcontext, new DefaultHostnameVerifier());
 
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
@@ -80,11 +49,9 @@ public class ExchangeHttpClient {
         pool.setDefaultSocketConfig(socketConfig);
 
         return HttpClients.custom()
-                .setSSLSocketFactory(factory)
                 .setDefaultRequestConfig(requestConfigBuilder.build())
                 .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
                 .disableAutomaticRetries()
-                .setSSLContext(sslcontext)
                 .setConnectionTimeToLive(2, TimeUnit.MINUTES)
                 .setConnectionManager(pool)
                 .build();
