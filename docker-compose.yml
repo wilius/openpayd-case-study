@@ -1,7 +1,34 @@
-version: '3'
+version: '2.1'
 services:
+  splunk:
+    container_name: splunk
+    image: "splunk/splunk:latest"
+    volumes:
+      - "./config/splunk:/opt/splunk/etc/apps/search/local"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - 8085:8000
+      - 15000:15000
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD=123456789
+    healthcheck:
+      test: ["CMD", "curl", "-v", "http://localhost:8000"]
+      interval: 10s
+      timeout: 10s
+      retries: 100
   exchange:
     container_name: exchange
     image: "com.openpayd/exchange:latest"
     ports:
       - 8080:8080
+    volumes:
+      - "./config/exchange:/opt/openpayd/config"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    depends_on:
+      splunk:
+        condition: service_healthy
+    links:
+      - splunk
