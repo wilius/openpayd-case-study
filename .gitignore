@@ -35,7 +35,6 @@ logs
 logback.groovy
 .DS_Store
 *~
-**/logback.xml
 services.json
 dependency-reduced-pom.xml
 *.properties
